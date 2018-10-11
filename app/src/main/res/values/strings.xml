@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">The Guardian News</string>
+    <string name="general">News</string>
+    <string name="sport">Sports</string>
+    <string name="politics">Politics</string>
+    <string name="technology">Technology</string>
+    <string name="science">Science</string>
+    <string name="business">Business</string>
+    <string name="global_development">Global development</string>
+    <string name="title_activity_new">New</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="headline">headline</string>
+    <string name="image_description">Descriptive image for the new</string>
+    <string name="url">New\'s link</string>
+    <string name="url_text">Link to the new:</string>
+    <string name="section_text">Section:</string>
+    <string name="section">section</string>
+    <string name="body">body</string>
+    <string name="news">News</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_search">Search a new</string>
+    <string name="search_hint">Search a new</string>
+    <string name="saves_the_new_into_the_database">see_later_description</string>
+    <string name="see_later">See later</string>
+</resources>
