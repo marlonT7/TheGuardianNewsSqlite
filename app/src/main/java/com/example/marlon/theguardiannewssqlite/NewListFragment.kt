@@ -2,9 +2,13 @@ package com.example.marlon.theguardiannewssqlite
 
 import android.content.ContentValues
 import android.content.Intent
+import android.database.Cursor
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.LoaderManager
+import android.support.v4.content.CursorLoader
+import android.support.v4.content.Loader
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -18,6 +22,7 @@ import java.lang.ref.WeakReference
 // the fragment initialization parameters
 const val KEY_URL = "url key"
 const val KEY_FIELD = "field_key"
+const val KEY_THEME = "theme key"
 const val ARG_PARAM1 = "new"
 const val GENERAL = ""
 const val SPORT = "sport"
@@ -29,22 +34,91 @@ const val SECTION = "section"
 const val QUERY = "&q="
 const val SEE_LATER = "see later"
 
-class NewListFragment : Fragment(), NewsListAdapter.SelectedNew, GetNews.GetNewsCallback {
-
-
-    override fun seeLater(position: Int) {
-        if (news[position].seeLater == TRUE) {
-            news[position].seeLater = FALSE
-        } else {
-            news[position].seeLater = TRUE
+class NewListFragment : Fragment(),
+        NewsListAdapter.SelectedNew,
+        GetNews.GetNewsCallback,
+        LoaderManager.LoaderCallbacks<Cursor> {
+    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
+        // List of columns to display
+        val projection = arrayOf(
+                NewEntry.COLUMN_ID,
+                NewEntry.COLUMN_HEADLINE,
+                NewEntry.COLUMN_SECTION_NAME,
+                NewEntry.COLUMN_THUMBNAIL,
+                NewEntry.COLUMN_BODY_TEXT,
+                NewEntry.COLUMN_URL,
+                NewEntry.COLUMN_SEE_LATER)
+        val selectionArgs: Array<String?>
+        val selection: String?
+        when {
+            urlQueryParam == GENERAL -> {
+                selection = null
+                selectionArgs = arrayOf()
+            }
+            queryField == SECTION -> {
+                selection = "${NewEntry.COLUMN_SECTION_NAME} LIKE ?"
+                selectionArgs = arrayOf(urlQueryParam)
+            }
+            queryField == SEE_LATER -> {
+                selection = "${NewEntry.COLUMN_SEE_LATER} LIKE ?"
+                selectionArgs = arrayOf(TRUE)
+            }
+            else -> {
+                selection = "${NewEntry.COLUMN_BODY_TEXT} LIKE ?"
+                selectionArgs = arrayOf("%$urlQueryParam%")
+            }
         }
+        val sortOrder = "${NewEntry.COLUMN_ID} ASC"
+        return CursorLoader(context!!,
+                NewEntry.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+        )
+    }
+
+    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
+        data.use {
+            if (news[0] == newLoading) {
+                news.removeAt(0)
+            }
+            if (it?.count != 0) {
+                with(it) {
+                    if (this!!.moveToNext()) {
+                        val id = it!!.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_ID))
+                        val headline = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_HEADLINE))
+                        val sectionName = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_SECTION_NAME))
+                        val url = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_URL))
+                        val thumbnail = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_THUMBNAIL))
+                        val bodyText = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_BODY_TEXT))
+                        val seeLater = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_SEE_LATER))
+                        val new = New(id, sectionName, headline, url, thumbnail, bodyText, seeLater)
+                        news.add(new)
+                    }
+                }
+            }
+            if (news.size == 0) {
+                news.add(newNotFound)
+            }
+            viewAdapter.notifyItemChanged(news.size - 1)
+        }
+
+    }
+
+    override fun onLoaderReset(loader: Loader<Cursor>) {
+    }
+
+    // Changes see later state
+    override fun seeLater(position: Int) {
+        news[position].changeSeeLater()
         updateNew(news[position])
     }
 
 
     // Updates the data when async task is finished
     override fun finished(newsList: MutableList<New>) {
-        if (newsList.size == 0 && (news[0] == newLoading || news[0] == newNotFound)) {
+        if (newsList.size == 0 && (news[0] == newLoading)) {
             // Remove the default value and set Not found if the result don't has data
             news.removeAt(0)
             news.add(newNotFound)
@@ -84,6 +158,7 @@ class NewListFragment : Fragment(), NewsListAdapter.SelectedNew, GetNews.GetNews
     override fun openNew(new: New) {
         val bundle = Bundle()
         bundle.putParcelable(ARG_PARAM1, new)
+        bundle.putString(KEY_THEME,(activity as MainActivity).myTheme)
         val intent = Intent(context, NewActivity::class.java)
         intent.putExtras(bundle)
         startActivity(intent)

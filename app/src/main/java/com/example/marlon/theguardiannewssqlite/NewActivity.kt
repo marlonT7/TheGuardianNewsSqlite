@@ -11,6 +11,12 @@ class NewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val myTheme = intent.extras.getString(KEY_THEME)
+        if (myTheme == DAY) {
+            setTheme(R.style.AppTheme)
+        } else {
+            setTheme(R.style.Theme_AppCompat_NoActionBar)
+        }
         setContentView(R.layout.activity_new)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.setTitleTextColor(Color.WHITE)

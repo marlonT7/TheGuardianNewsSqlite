@@ -25,4 +25,6 @@
     <string name="search_hint">Search a new</string>
     <string name="saves_the_new_into_the_database">see_later_description</string>
     <string name="see_later">See later</string>
+    <string name="change_theme">Change theme</string>
+    <string name="theme">day</string>
 </resources>

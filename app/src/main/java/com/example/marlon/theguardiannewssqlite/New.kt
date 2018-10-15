@@ -24,6 +24,14 @@ data class New(
             parcel.readString(),
             parcel.readString())
 
+    fun changeSeeLater(){
+        if (seeLater== FALSE){
+            seeLater= TRUE
+        } else{
+            seeLater= FALSE
+        }
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
         parcel.writeString(sectionName)

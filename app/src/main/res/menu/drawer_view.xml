@@ -29,5 +29,9 @@
             android:id="@+id/see_later_menu"
             android:icon="@drawable/ic_time_24dp"
             android:title="@string/see_later" />
+        <item
+            android:id="@+id/change_theme"
+            android:icon="@drawable/ic_tonality_black_24dp"
+            android:title="@string/change_theme" />
     </group>
 </menu>

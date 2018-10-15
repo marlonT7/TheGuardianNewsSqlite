@@ -1,5 +1,6 @@
 package com.example.marlon.theguardiannewssqlite
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -12,7 +13,13 @@ import android.support.v7.widget.SearchView
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
 import com.example.marlon.theguardiannews.R
+
+
+private const val THEME = "theme"
+const val DAY = "day"
+const val NIGHT = "night"
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,9 +27,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
     private lateinit var searchView: SearchView
+    lateinit var myTheme: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        myTheme = sharedPref.getString(getString(R.string.theme), THEME)
+        if (myTheme == DAY) {
+            setTheme(R.style.AppTheme)
+        } else {
+            setTheme(R.style.Theme_AppCompat_NoActionBar)
+        }
         setContentView(R.layout.activity_main)
         // Set a Toolbar to replace the ActionBar.
         toolbar = findViewById(R.id.toolbar)
@@ -104,20 +119,60 @@ class MainActivity : AppCompatActivity() {
                 bundle.putString(KEY_URL, BUSINESS)
                 bundle.putString(KEY_FIELD, SECTION)
             }
+            R.id.change_theme -> {
+                val sharedPref = this@MainActivity.getPreferences(Context.MODE_PRIVATE) ?: return
+                myTheme = sharedPref.getString(getString(R.string.theme), THEME)
+                if (myTheme == DAY) {
+                    with(sharedPref.edit()) {
+                        putString(getString(R.string.theme), NIGHT)
+                        apply()
+                    }
+                    setTheme(R.style.Theme_AppCompat_NoActionBar)
+                    myTheme = NIGHT
+                } else {
+                    with(sharedPref.edit()) {
+                        putString(getString(R.string.theme), DAY)
+                        apply()
+                    }
+                    setTheme(R.style.AppTheme)
+                    myTheme = DAY
+                }
+                val viewGroup = findViewById<ViewGroup>(R.id.drawer_layout)
+                viewGroup.invalidate()
+                setContentView(R.layout.activity_main)
+                toolbar = findViewById(R.id.toolbar)
+                toolbar.setTitleTextColor(Color.WHITE)
+                setSupportActionBar(toolbar)
+                val actionbar: ActionBar? = supportActionBar
+                actionbar?.apply {
+                    setDisplayHomeAsUpEnabled(true)
+                    setHomeAsUpIndicator(R.drawable.ic_menu)
+                }
+                // Find our drawer view
+                drawerLayout = findViewById(R.id.drawer_layout)
+                val navDrawer = findViewById<NavigationView>(R.id.nav_view)
+                // Setup drawer view
+                setupDrawerContent(navDrawer)
+                drawerToggle = setupDrawerToggle()
+                // Tie DrawerLayout events to the ActionBarToggle
+                drawerLayout.addDrawerListener(drawerToggle)
+            }
             else -> {
                 bundle.putString(KEY_URL, SEE_LATER)
                 bundle.putString(KEY_FIELD, SEE_LATER)
             }
         }
-        // Send false if the search is by section
 
+        if (!bundle.isEmpty) {
+
+            // Set action bar title
+            title = menuItem.title
+        }
         fragment.arguments = bundle
         // Insert the fragment by replacing any existing fragment
         supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit()
         // Highlight the selected item has been done by NavigationView
         menuItem.isChecked = true
-        // Set action bar title
-        title = menuItem.title
         // Close the navigation drawer
         drawerLayout.closeDrawers()
     }
