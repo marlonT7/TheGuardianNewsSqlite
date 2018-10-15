@@ -208,15 +208,14 @@ class NewListFragment : Fragment(),
             readNews()
         }
     }
-
     // Increase in 1 the page and formats the url to request to the API
     fun createUrl(): String {
         // change the page in the url
         page++
         urlQuery = when {
-            urlQueryParam == GENERAL -> "https://content.guardianapis.com/search?show-fields=headline%2CbodyText%2CshortUrl%2Cthumbnail&page=$page&page-size=30&api-key=test"
-            queryField == SECTION -> "https://content.guardianapis.com/search?section=$urlQueryParam&show-fields=headline%2CbodyText%2CshortUrl%2Cthumbnail&page=$page&page-size=30&api-key=test"
-            else -> "https://content.guardianapis.com/search?show-fields=headline%2CbodyText%2CshortUrl%2Cthumbnail&page=$page&page-size=30$QUERY$urlQueryParam&api-key=test"
+            urlQueryParam == GENERAL -> "https://content.guardianapis.com/search?show-fields=headline%2CbodyText%2CshortUrl%2Cthumbnail&page=$page&page-size=30&api-key=4c50cee8-de61-4d74-ae45-f9a0c6b57a71"
+            queryField == SECTION -> "https://content.guardianapis.com/search?section=$urlQueryParam&show-fields=headline%2CbodyText%2CshortUrl%2Cthumbnail&page=$page&page-size=30&api-key=4c50cee8-de61-4d74-ae45-f9a0c6b57a71"
+            else -> "https://content.guardianapis.com/search?show-fields=headline%2CbodyText%2CshortUrl%2Cthumbnail&page=$page&page-size=30$QUERY$urlQueryParam&api-key=4c50cee8-de61-4d74-ae45-f9a0c6b57a71"
         }
         return urlQuery
     }
