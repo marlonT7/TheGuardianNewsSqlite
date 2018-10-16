@@ -17,7 +17,7 @@ import android.view.ViewGroup
 import com.example.marlon.theguardiannews.R
 
 
-private const val THEME = "theme"
+const val THEME = "theme"
 const val DAY = "day"
 const val NIGHT = "night"
 
@@ -27,11 +27,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
     private lateinit var searchView: SearchView
-    lateinit var myTheme: String
+    private lateinit var myTheme: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        val sharedPref = getSharedPreferences(THEME,Context.MODE_PRIVATE)
         myTheme = sharedPref.getString(getString(R.string.theme), THEME)
         if (myTheme == DAY) {
             setTheme(R.style.AppTheme)
@@ -120,22 +120,22 @@ class MainActivity : AppCompatActivity() {
                 bundle.putString(KEY_FIELD, SECTION)
             }
             R.id.change_theme -> {
-                val sharedPref = this@MainActivity.getPreferences(Context.MODE_PRIVATE) ?: return
+                val sharedPref = getSharedPreferences(THEME,Context.MODE_PRIVATE)
                 myTheme = sharedPref.getString(getString(R.string.theme), THEME)
-                if (myTheme == DAY) {
+                myTheme = if (myTheme == DAY) {
                     with(sharedPref.edit()) {
                         putString(getString(R.string.theme), NIGHT)
                         apply()
                     }
                     setTheme(R.style.Theme_AppCompat_NoActionBar)
-                    myTheme = NIGHT
+                    NIGHT
                 } else {
                     with(sharedPref.edit()) {
                         putString(getString(R.string.theme), DAY)
                         apply()
                     }
                     setTheme(R.style.AppTheme)
-                    myTheme = DAY
+                    DAY
                 }
                 val viewGroup = findViewById<ViewGroup>(R.id.drawer_layout)
                 viewGroup.invalidate()

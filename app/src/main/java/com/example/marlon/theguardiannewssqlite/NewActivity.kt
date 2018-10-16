@@ -1,5 +1,6 @@
 package com.example.marlon.theguardiannewssqlite
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.ActionBar
@@ -9,9 +10,11 @@ import com.example.marlon.theguardiannews.R
 
 class NewActivity : AppCompatActivity() {
 
+    private lateinit var myTheme: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val myTheme = intent.extras.getString(KEY_THEME)
+        val sharedPref = getSharedPreferences(THEME, Context.MODE_PRIVATE)
+        myTheme = sharedPref.getString(getString(R.string.theme), THEME)
         if (myTheme == DAY) {
             setTheme(R.style.AppTheme)
         } else {

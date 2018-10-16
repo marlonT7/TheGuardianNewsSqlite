@@ -22,7 +22,6 @@ import java.lang.ref.WeakReference
 // the fragment initialization parameters
 const val KEY_URL = "url key"
 const val KEY_FIELD = "field_key"
-const val KEY_THEME = "theme key"
 const val ARG_PARAM1 = "new"
 const val GENERAL = ""
 const val SPORT = "sport"
@@ -158,7 +157,6 @@ class NewListFragment : Fragment(),
     override fun openNew(new: New) {
         val bundle = Bundle()
         bundle.putParcelable(ARG_PARAM1, new)
-        bundle.putString(KEY_THEME,(activity as MainActivity).myTheme)
         val intent = Intent(context, NewActivity::class.java)
         intent.putExtras(bundle)
         startActivity(intent)
