@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.example.marlon.theguardiannews.R
+import kotlinx.android.synthetic.main.fragment_new_list.view.*
 import java.io.IOException
 import java.lang.ref.WeakReference
 
@@ -78,29 +79,32 @@ class NewListFragment : Fragment(),
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
-        data.use {
+        data.use { cursor ->
             if (news[0] == newLoading) {
                 news.removeAt(0)
             }
-            if (it?.count != 0) {
-                with(it) {
-                    if (this!!.moveToNext()) {
-                        val id = it!!.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_ID))
-                        val headline = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_HEADLINE))
-                        val sectionName = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_SECTION_NAME))
-                        val url = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_URL))
-                        val thumbnail = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_THUMBNAIL))
-                        val bodyText = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_BODY_TEXT))
-                        val seeLater = it.getString(it.getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_SEE_LATER))
-                        val new = New(id, sectionName, headline, url, thumbnail, bodyText, seeLater)
-                        news.add(new)
+            if (cursor?.count != 0) {
+                with(cursor) {
+                    cursor?.let {
+                        while (this!!.moveToNext()) {
+                            val id = getString(getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_ID))
+                            val headline = getString(getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_HEADLINE))
+                            val sectionName = getString(getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_SECTION_NAME))
+                            val url = getString(getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_URL))
+                            val thumbnail = getString(getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_THUMBNAIL))
+                            val bodyText = getString(getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_BODY_TEXT))
+                            val seeLater = getString(getColumnIndex(com.example.marlon.theguardiannewssqlite.NewEntry.COLUMN_SEE_LATER))
+                            val new = New(id, sectionName, headline, url, thumbnail, bodyText, seeLater)
+                            news.add(new)
+                        }
                     }
+
                 }
             }
             if (news.size == 0) {
                 news.add(newNotFound)
             }
-            viewAdapter.notifyItemChanged(news.size - 1)
+            viewAdapter.notifyDataSetChanged()
         }
 
     }
@@ -203,9 +207,11 @@ class NewListFragment : Fragment(),
             deleteNews()
             getNews.execute()
         } else {
-            readNews()
+            //readNews()
+            loaderManager.initLoader(0, null, this)
         }
     }
+
     // Increase in 1 the page and formats the url to request to the API
     fun createUrl(): String {
         // change the page in the url
@@ -222,9 +228,6 @@ class NewListFragment : Fragment(),
 
     private lateinit var viewAdapter: NewsListAdapter
 
-
-    private var recyclerView: RecyclerView? = null
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -233,7 +236,7 @@ class NewListFragment : Fragment(),
         // Sets data to the recycler view
         viewAdapter = NewsListAdapter(news, this)
         // Divides the data in categories and send to the corresponding view page
-        recyclerView = view.findViewById<RecyclerView>(R.id.news_list_view).apply {
+        view.news_list_view.apply {
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
             setHasFixedSize(true)
@@ -292,68 +295,6 @@ class NewListFragment : Fragment(),
                 selectionArgs)
     }
 
-
-    // Read from the database
-    private fun readNews() {
-        // List of columns to display
-        val projection = arrayOf(
-                NewEntry.COLUMN_ID,
-                NewEntry.COLUMN_HEADLINE,
-                NewEntry.COLUMN_SECTION_NAME,
-                NewEntry.COLUMN_THUMBNAIL,
-                NewEntry.COLUMN_BODY_TEXT,
-                NewEntry.COLUMN_URL,
-                NewEntry.COLUMN_SEE_LATER)
-        val selectionArgs: Array<String?>
-        val selection: String?
-        when {
-            urlQueryParam == GENERAL -> {
-                selection = null
-                selectionArgs = arrayOf()
-            }
-            queryField == SECTION -> {
-                selection = "${NewEntry.COLUMN_SECTION_NAME} LIKE ?"
-                selectionArgs = arrayOf(urlQueryParam)
-            }
-            queryField == SEE_LATER -> {
-                selection = "${NewEntry.COLUMN_SEE_LATER} LIKE ?"
-                selectionArgs = arrayOf(TRUE)
-            }
-            else -> {
-                selection = "${NewEntry.COLUMN_BODY_TEXT} LIKE ?"
-                selectionArgs = arrayOf("%$urlQueryParam%")
-            }
-        }
-        val sortOrder = "${NewEntry.COLUMN_ID} ASC"
-        val cursor = context?.contentResolver?.query(
-                NewEntry.CONTENT_URI,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
-        )
-        cursor.use {
-            news.removeAt(0)
-            if (it?.count != 0) {
-                with(it) {
-                    while (this!!.moveToNext()) {
-                        val id = it!!.getString(it.getColumnIndex(NewEntry.COLUMN_ID))
-                        val headline = it.getString(it.getColumnIndex(NewEntry.COLUMN_HEADLINE))
-                        val sectionName = it.getString(it.getColumnIndex(NewEntry.COLUMN_SECTION_NAME))
-                        val url = it.getString(it.getColumnIndex(NewEntry.COLUMN_URL))
-                        val thumbnail = it.getString(it.getColumnIndex(NewEntry.COLUMN_THUMBNAIL))
-                        val bodyText = it.getString(it.getColumnIndex(NewEntry.COLUMN_BODY_TEXT))
-                        val seeLater = it.getString(it.getColumnIndex(NewEntry.COLUMN_SEE_LATER))
-                        news.add(New(id, sectionName, headline, url, thumbnail, bodyText, seeLater))
-                    }
-
-                }
-            } else {
-                news.add(newNotFound)
-            }
-        }
-    }
-
     override fun onDestroy() {
         // Cancel the async task when the fragment destroys
         if (!getNews.isCancelled) {
@@ -371,9 +312,11 @@ class NewListFragment : Fragment(),
                     fragment.isConnected() &&
                     fragment.queryField != SEE_LATER &&
                     fragment.getNews.status != (AsyncTask.Status.RUNNING)) {
-                fragment.getNews.cancel(true)
-                fragment.getNews = GetNews(fragment.createUrl(), fragment, WeakReference(fragment.context!!))
-                fragment.getNews.execute()
+                fragment.run {
+                    getNews.cancel(true)
+                    getNews = GetNews(fragment.createUrl(), fragment, WeakReference(fragment.context!!))
+                    getNews.execute() }
+
             }
         }
     }

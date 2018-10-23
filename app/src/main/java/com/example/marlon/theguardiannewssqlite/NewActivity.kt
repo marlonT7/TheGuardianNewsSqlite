@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import com.example.marlon.theguardiannews.R
+import kotlinx.android.synthetic.main.toolbar.*
 
 class NewActivity : AppCompatActivity() {
 
@@ -21,12 +22,11 @@ class NewActivity : AppCompatActivity() {
             setTheme(R.style.Theme_AppCompat_NoActionBar)
         }
         setContentView(R.layout.activity_new)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        //val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.setTitleTextColor(Color.WHITE)
         setSupportActionBar(toolbar)
         //Enable action bar
-        val actionbar: ActionBar? = supportActionBar
-        actionbar?.apply {
+        supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }

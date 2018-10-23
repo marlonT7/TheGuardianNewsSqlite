@@ -24,9 +24,8 @@ class NewsListAdapter(private var news: MutableList<New>, private val selectedNe
     // Each data item is just a string in this case that is shown in a TextView.
     inner class MyViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         fun bind() {
-            val seeLater= itemView.see_later
             itemView.setOnClickListener { news[adapterPosition].let { new -> selectedNew.openNew(new) } }
-            seeLater.setOnClickListener{changeSeeLater(adapterPosition)}
+            itemView.see_later.setOnClickListener{changeSeeLater(adapterPosition)}
         }
     }
 

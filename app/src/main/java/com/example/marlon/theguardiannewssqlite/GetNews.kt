@@ -42,7 +42,7 @@ class GetNews(val url: String, private val getNewsCallback: GetNewsCallback, pri
         val sh = HttpHandler()
         // Making a request to url and getting response
         val jsonStr = sh.makeServiceCall(url)
-        if (jsonStr != null) {
+        jsonStr?.let {
             try {
                 val jsonObj = JSONObject(jsonStr)
                 // Getting JSON Array node

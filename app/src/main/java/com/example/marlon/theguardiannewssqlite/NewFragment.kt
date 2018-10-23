@@ -13,6 +13,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.example.marlon.theguardiannews.R
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.fragment_new.*
+import kotlinx.android.synthetic.main.fragment_new.view.*
 
 
 // the fragment initialization parameters
@@ -31,28 +33,24 @@ class NewFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_new, container, false)
-        val headline = view.findViewById<TextView>(R.id.headline_view)
-        headline.text = new?.headline
+        view.apply {
+            headline_view.text = new?.headline
         // Load image from url
-        val photo = view.findViewById<ImageView>(R.id.photo_view)
         Picasso.get().load(new?.thumbnail).fit().centerCrop()
                 .placeholder(R.drawable.no_image_available)
                 .error(R.drawable.no_image_available)
-                .into(photo)
-        val body = view.findViewById<TextView>(R.id.body_view)
-        body.text = new?.bodyText
-        val section = view.findViewById<TextView>(R.id.section_view)
-        section.text = new?.sectionName
-        val url = view.findViewById<TextView>(R.id.url_view)
-        url.text = new?.url
-        url.setOnClickListener { openWebSite() }
-        val seeLater = view.findViewById<ImageButton>(R.id.see_later)
+                .into(photo_view)
+        body_view.text = new?.bodyText
+        section_view.text = new?.sectionName
+        url_view.text = new?.url
+        url_view.setOnClickListener { openWebSite() }
         if (new?.seeLater == TRUE) {
-            seeLater.setImageResource(R.drawable.ic_done_24dp)
+            see_later.setImageResource(R.drawable.ic_done_24dp)
         } else {
-            seeLater.setImageResource(R.drawable.ic_time_24dp)
+            see_later.setImageResource(R.drawable.ic_time_24dp)
         }
-        seeLater.setOnClickListener { seeLater(seeLater) }
+        see_later.setOnClickListener { seeLater(see_later) }
+        }
         return view
 
     }
